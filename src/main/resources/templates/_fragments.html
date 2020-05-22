@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>博客</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css">
+    <link rel="stylesheet" href="../static/css/me.css" th:href="@{/css/me.css}">
+    <link rel="stylesheet" href="../static/css/typo.css" th:href="@{/css/typo.css}">
+    <link rel="stylesheet" href="../static/css/animate.css" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" href="../static/lib/prism/prism.css" th:href="@{/lib/prism/prism.css}">
+    <link rel="stylesheet" href="../static/lib/tocbot/tocbot.css" th:href="@{/lib/tocbot/tocbot.css}">
+</head>
+<body>
+<!--遮罩层-->
+<div id="tier" th:fragment="tierDiv">
+    <div class="flex">
+        <!--登录弹窗-->
+        <div class="loginform  m-padded-tb-massive  m-container" name="login-form" style="display: none;">
+            <div class="ui container m-padded-tb-massive" style="max-width: 30em !important;">
+                <div class="ui middle aligned center aligned grid ">
+                    <div class="column">
+                        <h2 class="ui blue image header">
+                            <div class="content" style="color: purple">
+                                用户登录
+                            </div>
+                        </h2>
+                        <form class="ui large form">
+                            <div class="ui stacked segment">
+                                <div class="field">
+                                    <div class="ui left icon input">
+                                        <i class="user icon"></i>
+                                        <input type="text" id="loginemail" placeholder="邮箱">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui left icon input">
+                                        <i class="lock icon"></i>
+                                        <input type="password" id="loginpassword" placeholder="密码">
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <button type="button" id="loginButton" class="ui fluid large purple button">
+                                            登
+                                            录
+                                        </button>
+                                    </div>
+                                    <div class="field">
+                                        <button id="loginundo" type="button" class="ui fluid large  blue button"><i
+                                                class="undo icon"></i>取消
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui error mini  message"></div>
+                            <div class="ui mini negative message" id="loginMessage">输入邮箱和密码</div>
+
+                            <div class="ui message">
+                                没有用户?
+                                <a href="#" id="toregister">注册</a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--注册弹窗-->
+        <div class="m-padded-tb-massive  m-container" name="register-form" style="display: none;">
+            <div class="ui container m-padded-tb-massive" style="max-width: 30em !important;">
+                <div class="ui middle aligned center aligned grid ">
+                    <div class="column" id="registerform">
+                        <h2 class="ui blue image header">
+                            <div class="content" style="color: purple">
+                                你可以通过邮箱进行注册
+                            </div>
+                        </h2>
+                        <form class="ui large form ">
+                            <div class="ui stacked segment">
+                                <div class="field">
+                                    <div class="ui left icon input">
+                                        <i class="mail icon"></i>
+                                        <input type="text" id="e-mail" name="email" placeholder="QQ邮箱">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui left icon input">
+                                        <i class="user icon"></i>
+                                        <input type="text" id="nickname" name="nickname" placeholder="用户名">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <div class="ui left icon input">
+                                        <i class="lock icon"></i>
+                                        <input type="password" id="password" name="password" placeholder="密码">
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <div class="ui left icon input">
+                                            <i class="key icon"></i>
+                                            <input type="text" id="code" name="code" placeholder="验证码">
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <button id="getCode" type="button"
+                                                class="ui black basic teal button code-button">发送激活码
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <button id="register" type="button" class="ui fluid large purple button">注册
+                                        </button>
+                                    </div>
+                                    <div class="field">
+                                        <button id="registerundo" type="button" class="ui fluid large blue  button">
+                                            <i
+                                                    class="undo icon"></i>取消
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ui error mini message"></div>
+                            <div class="ui mini negative message" id="registerMessage">请输入邮箱号、用户名和密码</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style th:fragment="tierStyle">
+    #tier {
+        width: 100vw;
+        height: 100vw;
+        position: fixed;
+        background: rgba(0, 0, 0, .5);
+        z-index: 999;
+        display: none;
+    }
+
+    #tier .flex {
+        width: 100vw;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<!-- 导航 -->
+<nav th:fragment="menu(n)" class="ui inverted attached segment m-padded-tb-mini m-shadow-small animated fadeInDown">
+
+    <div class="ui container">
+        <!--响应移动端，堆叠-->
+        <div class="ui inverted secondary stackable menu">
+            <a href="#" class="item">
+                <img class="ui circular image"
+                     src="https://ironhide-bucket.oss-cn-hangzhou.aliyuncs.com/1.png" style="width: 60px">
+            </a>
+
+            <div class="ui inverted secondary stackable menu"
+                 th:style="${session.LogVisitor==null}?'':'visibility: hidden'">
+                <button id="pageLogin" type="button" class="m-item item m-mobile-hide"><i class="user icon"></i>登录
+                </button>
+            </div>
+            <div class="ui inverted secondary stackable menu"
+                 th:style="${session.LogVisitor!=null}?'':'visibility: hidden'">
+                <span th:text="${session.LogVisitor!=null?session.LogVisitor.nickname:''}"
+                      class="m-item item m-mobile-hide">nickname</span>
+                <button id="Logout" type="button" class="m-item item m-mobile-hide"><i class="user icon"></i>注销
+                </button>
+            </div>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="#" th:href="@{/blog}" class="m-item item m-mobile-hide" th:classappend="${n==1} ? 'active'"><i
+                    class="home icon"></i>首页</a>
+            <a href="#" th:href="@{/types/-1}" class="m-item item m-mobile-hide" th:classappend="${n==2} ? 'active'"><i
+                    class="idea icon"></i>分类</a>
+            <a href="#" th:href="@{/tags/-1}" class="m-item item m-mobile-hide" th:classappend="${n==3} ? 'active'"><i
+                    class="tags icon"></i>标签</a>
+            <a href="#" th:href="@{/archives}" class="m-item item m-mobile-hide" th:classappend="${n==4} ? 'active'"><i
+                    class="clone icon"></i>归档</a>
+            <a href="#" th:href="@{/about}" class="m-item item m-mobile-hide" th:classappend="${n==5} ? 'active'"><i
+                    class="info icon"></i>关于我</a>
+            <div class="right m-item item m-mobile-hide">
+                <form name="search" action="#" th:action="@{/blog/search}" method="get"
+                      class="ui icon inverted transparent input">
+                    <input type="text" name="query" placeholder="Search..." th:value="${query}">
+                    <i onclick="document.forms['search'].submit()" class="purple search link icon"></i>
+                </form>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="ui black menu toggle black icon button m-right-top m-mobile-show">
+        <i class="sidebar icon"></i>
+    </a>
+</nav>
+
+<!-- 底部footer-->
+<footer th:fragment="footer" class="ui inverted vertical segment m-padded-tb-massive">
+    <div class="ui center aligned container">
+        <div class="ui inverted divided stackable grid">
+            <div class="three wide column">
+                <div class="ui inverted link list">
+                    <div class="item">
+                        <img src="https://ironhide-bucket.oss-cn-hangzhou.aliyuncs.com/2.png" class="ui rounded image"
+                             alt="" style="width: 120px">
+                    </div>
+                </div>
+            </div>
+            <div class="three wide column">
+                <h4 class="ui inverted header m-opacity-mini">备案号</h4>
+                <div class="ui inverted link list">
+                    <div class="item">还在审核....</div>
+                </div>
+            </div>
+            <div class="four wide column">
+                <h4 class="ui inverted header m-opacity-mini">联系我</h4>
+                <div class="ui inverted link list">
+                    <a href="#" class="item">QQ:xxx</a>
+                    <a href="#" class="item">E-mail:xxxqq.com</a>
+
+                </div>
+            </div>
+            <div class="six wide column">
+                <h4 class="ui inverted header m-opacity-mini">最新博客</h4>
+                <p class="m-text-thin m-text-spaced m-text-lined m-opacity-mini">xxx</p>
+            </div>
+        </div>
+        <div class="ui inverted section divider"></div>
+        <p class="m-text-thin m-text-spaced m-text-lined m-opacity-mini">Copyright © 2019 - 2020</p>
+    </div>
+</footer>
+<th:block th:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/jquery.scrollto@2.1.2/jquery.scrollTo.min.js"></script>
+    <script src="../static/lib/prism/prism.js" th:src="@{/lib/prism/prism.js}"></script>
+    <script src="../static/lib/tocbot/tocbot.min.js" th:src="@{/lib/tocbot/tocbot.min.js}"></script>
+    <script src="../static/lib/qrcode/qrcode.min.js" th:src="@{/lib/qrcode/qrcode.min.js}"></script>
+    <script src="../static/lib/waypoints/jquery.waypoints.min.js"
+            th:src="@{/lib/waypoints/jquery.waypoints.min.js}"></script>
+</th:block>
+</body>
+<script th:fragment="LoginAndRegister">
+
+    //登出
+    $("#Logout").click(function () {
+        $.ajax({
+            url: "/visitorLogout",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            success: function (response) {
+                if (response.code == 0) {
+                    window.sessionStorage.setItem("token", null);
+                    window.sessionStorage.setItem("username", null);
+                    window.sessionStorage.setItem("useremail", null);
+                    window.sessionStorage.setItem("userid", null);
+                }
+                location.reload();
+            },
+            error: function (response) {
+                console.log(response.msg);
+                location.reload();
+            }
+        })
+    });
+
+    //登录
+    $("#pageLogin").click(function () {
+        loginShow();
+    });
+
+    function loginShow() {
+        $("#tier").css({'display': 'block'});
+        $("[name='login-form']").show();
+    }
+
+    //取消登录
+    $("#loginundo").click(function () {
+        loginHide();
+    });
+
+    function loginHide() {
+        $("[name='login-form']").hide();
+        $("#tier").css({'display': 'none'});
+    }
+
+    //登录
+    $("#loginButton").click(function () {
+        $.ajax({
+            url: "/VisitorLogin",
+            type: "post",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify(getLoginData()),
+            dataType: "json",
+            success: function (response, status, request) {
+                if (response.code != 0) {
+                    var msg = response.msg;
+                    console.log(msg);
+                    $("#loginMessage").text(msg);
+                } else {
+                    var token = request.getResponseHeader("token");
+                    var username = response.data.nickname;
+                    var useremail = response.data.email;
+                    var userid = response.data.id;
+                    console.log(token);
+                    console.log(username);
+                    window.sessionStorage.setItem("token", token);
+                    window.sessionStorage.setItem("username", username);
+                    window.sessionStorage.setItem("useremail", useremail);
+                    window.sessionStorage.setItem("userid", userid);
+                    visituser = window.sessionStorage.getItem("username");
+                    loginHide();
+                    location.reload();
+                }
+            },
+            error: function (response) {
+                var msg = response.msg;
+                console.log(msg);
+            }
+        })
+    });
+
+    //获取登录信息
+    function getLoginData() {
+        var email = $("#loginemail").val();
+        var password = $("#loginpassword").val();
+        var data = {
+            "email": email,
+            "password": password,
+        }
+        return data;
+    }
+
+    //取消注册
+    $("#registerundo").click(function () {
+        $("[name='register-form']").hide();
+        $("#tier").css({'display': 'none'});
+    });
+
+    /*注册*/
+    //跳转注册
+    $("#toregister").click(function () {
+        registerShow();
+    });
+
+    //注册页面
+    function registerShow() {
+        $("[name='register-form']").show();
+        $("[name='login-form']").hide();
+    }
+
+    //点击获取验证码按钮
+    $("#getCode").click(function () {
+        var email = $("#e-mail").val();
+        if (email == null || email == "") {
+            alert("请输入邮箱");
+            return;
+        } else {
+            alert("验证码发送中！");
+            $("#registerMessage").text("验证码发送中！");
+            on();
+            //表单信息的验证
+            $.ajax({
+                url: "/Toregister",
+                type: "POST",
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(getJsonData()),
+                dataType: "json",
+                success: function (response) {
+                    if (response.code === 200) {
+                        window.setTimeout(out, 60000);
+                        $("#registerMessage").text("验证码发送成功！");
+                    } else {
+                        out();
+                        $("#registerMessage").text(response.msg);
+                    }
+                },
+                error: function (response) {
+                    out();
+                    alert(response.msg);
+                }
+            })
+        }
+    });
+
+    //按钮定期失效
+    function on() {
+        $('.code-button').removeClass('ui black  basic button');
+        $('.code-button').addClass('ui black disabled basic button')
+    }
+
+    //恢复获取验证码按钮
+    function out() {
+        $('.code-button').removeClass('ui black disabled basic button');
+        $('.code-button').addClass('ui black  basic button')
+    }
+
+    //获取注册信息
+    function getJsonData() {
+        var email = $("#e-mail").val();
+        var nickname = $("#nickname").val();
+        var password = $("#password").val();
+        var code = $("#code").val();
+        var data = {
+            "email": email,
+            "nickname": nickname,
+            "password": password,
+            "code": code
+        };
+        return data;
+    }
+
+    //注册
+    $("#register").click(function () {
+        $.ajax({
+            url: "/register",
+            type: "POST",
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify(getJsonData()),
+            dataType: "json",
+            success: function (response) {
+                if (response.code === 0) {
+                    $("[name='register-form']").hide();
+                    $("[name='login-form']").show();
+                    $("#loginMessage").text("注册成功");
+                } else {
+                    $("#registerMessage").text(response.msg);
+                }
+            },
+            error: function (response) {
+                alert(response.msg);
+            }
+        })
+    });
+</script>
+</html>
